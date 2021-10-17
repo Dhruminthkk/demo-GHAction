@@ -1,0 +1,23 @@
+on: push
+name: build and push - demo
+jobs:
+  build-and-push:
+    name: build and push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Inject slug/short variables
+        uses: rlespinasse/github-slug-action@v3.x
+      - name: docker build
+        uses: actions/docker/cli@master
+        with:
+          args: build -t dmthakkar/docker-spring-boot:${{ env.GITHUB_REF_SLUG }} .
+      - name: docker login
+        uses: actions/docker/login@master
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      - name: docker push
+        uses: actions/docker/cli@master
+        with:
+          args: push dmthakkar/docker-spring-boot:${{ env.GITHUB_REF_SLUG }}
